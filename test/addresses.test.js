@@ -2,7 +2,7 @@ const { show, add, remove, flush } = require('../src/addresses');
 const { exec } = require('child_process');
 const { beforeAll, describe, expect, test, afterAll } = require("@jest/globals");
 
-const dummyInterfaceName = 'eth_dummy';
+const dummyInterfaceName = 'eth_dummy_addr';
 const dummyIpCidr = '172.16.16.0/24';
 
 beforeAll(async () => {
@@ -28,13 +28,13 @@ describe('Show', () => {
 
 describe('Add', () => {
     test('Should resolve if IP address is successfully added', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const ipCidr = '172.16.17.1/32';
         await expect(add(interfaceName, ipCidr)).resolves.toBeUndefined();
     });
 
     test('Should reject with an error for an invalid IP CIDR', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const invalidIpCidr = 'invalid_ip';
         await expect(add(interfaceName, invalidIpCidr)).rejects.toThrowError(/Invalid IP CIDR/);
     });
@@ -46,7 +46,7 @@ describe('Add', () => {
     });
 
     test('Should reject with an error if IP address already exists on interface', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const existingIpCidr = '172.16.17.1/32';
         await expect(add(interfaceName, existingIpCidr)).rejects.toThrowError(/IP Address already exists on interface/);
     });
@@ -54,13 +54,13 @@ describe('Add', () => {
 
 describe('Remove', () => {
     test('Should resolve if IP address is successfully removed', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const ipCidrToRemove = '172.16.17.1/32';
         await expect(remove(interfaceName, ipCidrToRemove)).resolves.toBeUndefined();
     });
 
     test('Should reject with an error for an invalid IP CIDR', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const invalidIpCidr = 'invalid_ip';
         await expect(remove(interfaceName, invalidIpCidr)).rejects.toThrowError(/Invalid IP CIDR/);
     });
@@ -72,7 +72,7 @@ describe('Remove', () => {
     });
 
     test('Should reject with an error if IP address does not exist on interface', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         const nonExistingIpCidr = '172.16.17.2/32';
         await expect(remove(interfaceName, nonExistingIpCidr)).rejects.toThrowError(/IP Address does not exist on interface/);
     });
@@ -80,7 +80,7 @@ describe('Remove', () => {
 
 describe('Flush', () => {
     test('Should resolve if all IP addresses are successfully removed', async () => {
-        const interfaceName = 'eth_dummy';
+        const interfaceName = 'eth_dummy_addr';
         await expect(flush(interfaceName)).resolves.toBeUndefined();
     });
 

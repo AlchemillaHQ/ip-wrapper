@@ -16,8 +16,22 @@ function isValidCIDR(cidr) {
            (isIP(ip) === 6 && subnet >= 0 && subnet <= 128)));
 }
 
+/**
+ * Checks if a given MTU is valid.
+ * @param mtu
+ * @returns {boolean}
+ */
 function isValidMTU(mtu) {
     return !isNaN(parseInt(mtu)) && mtu > 0;
+}
+
+/**
+ * Checks if a given string is a valid IP address.
+ * @param ip
+ * @returns {boolean}
+ */
+function isValidIP(ip) {
+    return isIP(ip) !== 0;
 }
 
 /**
@@ -34,5 +48,6 @@ function isValidMACAddress(macAddress) {
 module.exports = {
     isValidCIDR,
     isValidMTU,
+    isValidIP,
     isValidMACAddress
 }
