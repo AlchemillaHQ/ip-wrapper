@@ -28,6 +28,14 @@ const ipWrapper = require('ip-wrapper');
 
 All examples are located in the `examples` directory.
 
+## Tests
+
+We use [Jest](https://jestjs.io/) for testing. To run the tests, use the following command:
+
+```shell
+npm run test
+``
+
 ## LICENSE
 
 View the [LICENSE.md](LICENSE.md) file.
