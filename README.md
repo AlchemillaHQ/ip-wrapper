@@ -34,7 +34,7 @@ We use [Jest](https://jestjs.io/) for testing. To run the tests, use the followi
 
 ```shell
 npm run test
-``
+```
 
 ## LICENSE
 
