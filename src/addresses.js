@@ -11,6 +11,11 @@ const { isValidCIDR, isValidInterface } = require("./utils");
  */
 function show(interfaceName = "") {
     return new Promise((resolve, reject) => {
+        if (interfaceName.length > 0 && !isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + interfaceName));
+            return;
+        }
+
         const command = interfaceName
             ? `ip -j address show ${interfaceName.trim()}`
             : "ip -j address";
@@ -51,7 +56,7 @@ function add(interfaceName, ipCidr) {
             return;
         }
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
         exec(
@@ -89,7 +94,7 @@ function remove(interfaceName, ipCidr) {
             return;
         }
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
         exec(
@@ -122,7 +127,7 @@ function remove(interfaceName, ipCidr) {
 function flush(interfaceName) {
     return new Promise((resolve, reject) => {
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
         exec(`ip address flush dev ${interfaceName}`, (error, stdout, stderr) => {

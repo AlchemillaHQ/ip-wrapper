@@ -6,18 +6,11 @@ const { isIP } = require("net");
  * @param {string} interfaceName - The string to be checked for shell injection and string escaping
  * @returns {boolean} Returns true if the string is a valid interface name
  */
-
 function isValidInterface(interfaceName) {
-    const interfaceRegex =
-        /^(lo|[a-zA-Z]{2,}[0-9]+|[en][a-zA-Z0-9]+[0-9]*|wlan[0-9]+)$/;
-    // Valid interface shouldn't be escaped
-    const isEscaped =
-        interfaceName.includes("?") ||
-        interfaceName.includes("\\") ||
-        interfaceName.includes(";") ||
-        interfaceName.includes("|");
+    const interfaceRegex = /^[a-zA-Z0-9_-]+$/;
 
-    return interfaceRegex.test(interfaceName) && !isEscaped;
+    // Valid interface shouldn't be escaped
+    return interfaceRegex.test(interfaceName);
 }
 
 /**

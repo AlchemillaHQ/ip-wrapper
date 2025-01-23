@@ -7,6 +7,5 @@ module.exports = {
     addr: addresses,
     link: link,
     neigh: neigh,
-    assert: utils,
+    utils: utils,
 };
-

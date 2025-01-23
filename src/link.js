@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const { isValidMTU, isValidMACAddress } = require("./utils");
+const { isValidMTU, isValidMACAddress, isValidInterface } = require("./utils");
 
 /**
  * Retrieves detailed information about all network interfaces (links).
@@ -35,7 +35,7 @@ function show() {
 function setState(interfaceName, state) {
     return new Promise((resolve, reject) => {
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
         if (state !== "up" && state !== "down") {
@@ -73,7 +73,7 @@ function setMTU(interfaceName, mtuValue) {
         }
 
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
 
@@ -105,12 +105,12 @@ function setMTU(interfaceName, mtuValue) {
 function rename(oldInterfaceName, newInterfaceName) {
     return new Promise((resolve, reject) => {
         if (!isValidInterface(oldInterfaceName)) {
-            reject(new Error("Invalid old interface name: " + ipCidr));
+            reject(new Error("Invalid old interface name: " + oldInterfaceName));
             return;
         }
 
         if (!isValidInterface(newInterfaceName)) {
-            reject(new Error("Invalid new interface name: " + ipCidr));
+            reject(new Error("Invalid new interface name: " + newInterfaceName));
             return;
         }
         exec(
@@ -141,7 +141,7 @@ function rename(oldInterfaceName, newInterfaceName) {
 function setMac(interfaceName, newMacAddress) {
     return new Promise((resolve, reject) => {
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
 
@@ -172,4 +172,3 @@ module.exports = {
     rename,
     setMac,
 };
-

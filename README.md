@@ -32,7 +32,7 @@ const ipWrapper = require('ip-wrapper');
 ```javascript
 
 const ipWrapper = require('ip-wrapper');
-const assert = ipWrapper.assert;
+const assert = ipWrapper.utils;
 
 let interfaceName = 'enp6s0';
 

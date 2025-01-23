@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const { isValidIP, isValidMACAddress } = require("./utils");
+const { isValidIP, isValidMACAddress, isValidInterface } = require("./utils");
 
 /**
  * Retrieves the network neighbors for a specific network interface or all interfaces if none is specified.
@@ -10,11 +10,11 @@ const { isValidIP, isValidMACAddress } = require("./utils");
  * @throws {Error} Throws an error if there's an issue executing the command or parsing its output.
  */
 function show(interfaceName = "") {
-    if (!isValidInterface(interfaceName)) {
-        reject(new Error("Invalid interface name: " + ipCidr));
-        return;
-    }
     return new Promise((resolve, reject) => {
+        if (interfaceName.length > 0 && !isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + interfaceName));
+            return;
+        }
         const command = interfaceName
             ? `ip -j neigh show dev ${interfaceName.trim()}`
             : `ip -j neigh show`;
@@ -80,7 +80,7 @@ function add(ipAddress, macAddress, interfaceName, type = "permanent") {
             return;
         }
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
         const command = `ip neigh add ${ipAddress} lladdr ${macAddress} dev ${interfaceName} nud ${type}`;
@@ -210,7 +210,7 @@ function update(ipAddress, macAddress, interfaceName, type = "permanent") {
 function flush(interfaceName = "") {
     return new Promise((resolve, reject) => {
         if (!isValidInterface(interfaceName)) {
-            reject(new Error("Invalid interface name: " + ipCidr));
+            reject(new Error("Invalid interface name: " + interfaceName));
             return;
         }
 
@@ -238,4 +238,3 @@ module.exports = {
     update,
     flush,
 };
-
