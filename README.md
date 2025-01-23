@@ -24,6 +24,36 @@ const ipWrapper = require('ip-wrapper');
 })();
 ```
 
+
+## Input validations
+- There could be a risk of insertion of malicious user input for code escaped code execution
+- Thankfully, `ip-wrapper` is also provided with an assert module 
+
+```javascript
+
+const ipWrapper = require('ip-wrapper');
+const assert = ipWrapper.assert;
+
+let interfaceName = 'enp6s0';
+
+if(!assert.isValidInterface(interfaceName)){
+    // handle error your own way 
+    throw new Error("invalid interface name")
+}
+
+(async () => {
+    const addresses = await ipWrapper.addr.show();
+    await ipWrapper.addr.add(interfaceName, '6.6.6.6/32');
+    await ipWrapper.addr.remove(interfaceName, '6.6.6.6/32');
+    await ipWrapper.addr.flush(interfaceName);
+})();
+
+
+```
+
+> Your could also bring in any library of your own choice to perform validations and assertions, for e.g., [ip-cidr](www.npmjs.com/package/ip-cidr)
+
+
 ## Examples
 
 All examples are located in the `examples` directory.

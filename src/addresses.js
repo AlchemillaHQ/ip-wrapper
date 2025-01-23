@@ -1,5 +1,5 @@
-const { exec} = require('child_process');
-const { isValidCIDR } = require('./utils');
+const { exec } = require("child_process");
+const { isValidCIDR, isValidInterface } = require("./utils");
 
 /**
  * Retrieves the network interfaces and their IP addresses.
@@ -9,15 +9,17 @@ const { isValidCIDR } = require('./utils');
  * @returns {Promise<Object[]>} A promise that resolves to an array of objects representing network interfaces and their IP addresses.
  * @throws {Error} Throws an error for various failure scenarios, including non-existent interfaces.
  */
-function show(interfaceName = '') {
+function show(interfaceName = "") {
     return new Promise((resolve, reject) => {
-        const command = interfaceName ? `ip -j address show ${interfaceName.trim()}` : 'ip -j address';
+        const command = interfaceName
+            ? `ip -j address show ${interfaceName.trim()}`
+            : "ip -j address";
         exec(command, (error, stdout, stderr) => {
             if (stderr) {
-                if(stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
+                if (stderr.includes("Cannot find device")) {
+                    reject(new Error("Cannot find device " + interfaceName));
                 } else {
-                    reject(new Error('Error retrieving network interfaces: ' + stderr));
+                    reject(new Error("Error retrieving network interfaces: " + stderr));
                 }
                 return;
             }
@@ -26,7 +28,9 @@ function show(interfaceName = '') {
                 const result = JSON.parse(stdout);
                 resolve(result);
             } catch (parseError) {
-                reject(new Error('Error parsing network interfaces: ' + parseError.message));
+                reject(
+                    new Error("Error parsing network interfaces: " + parseError.message),
+                );
             }
         });
     });
@@ -43,24 +47,30 @@ function show(interfaceName = '') {
 function add(interfaceName, ipCidr) {
     return new Promise((resolve, reject) => {
         if (!isValidCIDR(ipCidr)) {
-            reject(new Error('Invalid IP CIDR: ' + ipCidr));
+            reject(new Error("Invalid IP CIDR: " + ipCidr));
             return;
         }
-
-        exec(`ip address add ${ipCidr} dev ${interfaceName}`, (error, stdout, stderr) => {
-            if (stderr) {
-                if(stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
-                } else if(stderr.includes('File exists')) {
-                    reject(new Error('IP Address already exists on interface'));
-                } else {
-                    reject(new Error('Error adding IP address: ' + stderr));
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
+        }
+        exec(
+            `ip address add ${ipCidr} dev ${interfaceName}`,
+            (error, stdout, stderr) => {
+                if (stderr) {
+                    if (stderr.includes("Cannot find device")) {
+                        reject(new Error("Cannot find device " + interfaceName));
+                    } else if (stderr.includes("File exists")) {
+                        reject(new Error("IP Address already exists on interface"));
+                    } else {
+                        reject(new Error("Error adding IP address: " + stderr));
+                    }
+                    return;
                 }
-                return;
-            }
 
-            resolve();
-        });
+                resolve();
+            },
+        );
     });
 }
 
@@ -75,24 +85,30 @@ function add(interfaceName, ipCidr) {
 function remove(interfaceName, ipCidr) {
     return new Promise((resolve, reject) => {
         if (!isValidCIDR(ipCidr)) {
-            reject(new Error('Invalid IP CIDR: ' + ipCidr));
+            reject(new Error("Invalid IP CIDR: " + ipCidr));
             return;
         }
-
-        exec(`ip address del ${ipCidr} dev ${interfaceName}`, (error, stdout, stderr) => {
-            if (stderr) {
-                if(stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
-                } else if(stderr.includes('Cannot assign requested address')) {
-                    reject(new Error('IP Address does not exist on interface'));
-                } else {
-                    reject(new Error('Error removing IP address: ' + stderr));
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
+        }
+        exec(
+            `ip address del ${ipCidr} dev ${interfaceName}`,
+            (error, stdout, stderr) => {
+                if (stderr) {
+                    if (stderr.includes("Cannot find device")) {
+                        reject(new Error("Cannot find device " + interfaceName));
+                    } else if (stderr.includes("Cannot assign requested address")) {
+                        reject(new Error("IP Address does not exist on interface"));
+                    } else {
+                        reject(new Error("Error removing IP address: " + stderr));
+                    }
+                    return;
                 }
-                return;
-            }
 
-            resolve();
-        });
+                resolve();
+            },
+        );
     });
 }
 
@@ -105,12 +121,16 @@ function remove(interfaceName, ipCidr) {
  */
 function flush(interfaceName) {
     return new Promise((resolve, reject) => {
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
+        }
         exec(`ip address flush dev ${interfaceName}`, (error, stdout, stderr) => {
             if (stderr) {
-                if(stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
+                if (stderr.includes("Cannot find device")) {
+                    reject(new Error("Cannot find device " + interfaceName));
                 } else {
-                    reject(new Error('Error flushing IP addresses: ' + stderr));
+                    reject(new Error("Error flushing IP addresses: " + stderr));
                 }
                 return;
             }
@@ -124,5 +144,5 @@ module.exports = {
     show,
     add,
     remove,
-    flush
-}
+    flush,
+};

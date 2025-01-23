@@ -1,4 +1,24 @@
-const { isIP } = require('net');
+const { isIP } = require("net");
+
+/**
+ * Checks if a given string is a valid interface name
+ *
+ * @param {string} interfaceName - The string to be checked for shell injection and string escaping
+ * @returns {boolean} Returns true if the string is a valid interface name
+ */
+
+function isValidInterface(interfaceName) {
+    const interfaceRegex =
+        /^(lo|[a-zA-Z]{2,}[0-9]+|[en][a-zA-Z0-9]+[0-9]*|wlan[0-9]+)$/;
+    // Valid interface shouldn't be escaped
+    const isEscaped =
+        interfaceName.includes("?") ||
+        interfaceName.includes("\\") ||
+        interfaceName.includes(";") ||
+        interfaceName.includes("|");
+
+    return interfaceRegex.test(interfaceName) && !isEscaped;
+}
 
 /**
  * Checks if a given string is a valid CIDR notation.
@@ -7,13 +27,17 @@ const { isIP } = require('net');
  * @returns {boolean} Returns true if the string is a valid CIDR notation, false otherwise.
  */
 function isValidCIDR(cidr) {
-    const parts = cidr.split('/');
+    const parts = cidr.split("/");
     const ip = parts[0];
     const subnet = parts[1];
 
-    return (isIP(ip) && subnet !== undefined && !isNaN(parseInt(subnet)) &&
-           ((isIP(ip) === 4 && subnet >= 0 && subnet <= 32) ||
-           (isIP(ip) === 6 && subnet >= 0 && subnet <= 128)));
+    return (
+        isIP(ip) &&
+        subnet !== undefined &&
+        !isNaN(parseInt(subnet)) &&
+        ((isIP(ip) === 4 && subnet >= 0 && subnet <= 32) ||
+            (isIP(ip) === 6 && subnet >= 0 && subnet <= 128))
+    );
 }
 
 /**
@@ -49,5 +73,6 @@ module.exports = {
     isValidCIDR,
     isValidMTU,
     isValidIP,
-    isValidMACAddress
-}
+    isValidMACAddress,
+    isValidInterface,
+};

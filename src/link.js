@@ -1,5 +1,5 @@
-const { exec} = require('child_process');
-const { isValidMTU, isValidMACAddress } = require('./utils');
+const { exec } = require("child_process");
+const { isValidMTU, isValidMACAddress } = require("./utils");
 
 /**
  * Retrieves detailed information about all network interfaces (links).
@@ -11,14 +11,14 @@ function show() {
     return new Promise((resolve, reject) => {
         exec(`ip -j link show`, (error, stdout, stderr) => {
             if (stderr) {
-                reject(new Error('Error retrieving network links: ' + stderr));
+                reject(new Error("Error retrieving network links: " + stderr));
                 return;
             }
             try {
                 const result = JSON.parse(stdout);
                 resolve(result);
             } catch (parseError) {
-                reject(new Error('Error parsing network links: ' + parseError.message));
+                reject(new Error("Error parsing network links: " + parseError.message));
             }
         });
     });
@@ -34,17 +34,21 @@ function show() {
  */
 function setState(interfaceName, state) {
     return new Promise((resolve, reject) => {
-        if(state !== 'up' && state !== 'down') {
-            reject(new Error('Invalid state: ' + state));
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
+        }
+        if (state !== "up" && state !== "down") {
+            reject(new Error("Invalid state: " + state));
             return;
         }
 
         exec(`ip link set ${interfaceName} ${state}`, (error, stdout, stderr) => {
             if (stderr) {
-                if(stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
+                if (stderr.includes("Cannot find device")) {
+                    reject(new Error("Cannot find device " + interfaceName));
                 } else {
-                    reject(new Error('Error setting link state: ' + stderr));
+                    reject(new Error("Error setting link state: " + stderr));
                 }
             }
 
@@ -64,21 +68,29 @@ function setState(interfaceName, state) {
 function setMTU(interfaceName, mtuValue) {
     return new Promise((resolve, reject) => {
         if (!isValidMTU(mtuValue)) {
-            reject(new Error('Invalid MTU value: ' + mtuValue));
+            reject(new Error("Invalid MTU value: " + mtuValue));
             return;
         }
 
-        exec(`ip link set ${interfaceName} mtu ${mtuValue}`, (error, stdout, stderr) => {
-            if (stderr) {
-                if (stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
-                } else {
-                    reject(new Error('Error setting MTU: ' + stderr));
-                }
-            }
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
+        }
 
-            resolve();
-        });
+        exec(
+            `ip link set ${interfaceName} mtu ${mtuValue}`,
+            (error, stdout, stderr) => {
+                if (stderr) {
+                    if (stderr.includes("Cannot find device")) {
+                        reject(new Error("Cannot find device " + interfaceName));
+                    } else {
+                        reject(new Error("Error setting MTU: " + stderr));
+                    }
+                }
+
+                resolve();
+            },
+        );
     });
 }
 
@@ -92,17 +104,29 @@ function setMTU(interfaceName, mtuValue) {
  */
 function rename(oldInterfaceName, newInterfaceName) {
     return new Promise((resolve, reject) => {
-        exec(`ip link set dev ${oldInterfaceName} name ${newInterfaceName}`, (error, stdout, stderr) => {
-            if (stderr) {
-                if (stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + oldInterfaceName));
-                } else {
-                    reject(new Error('Error renaming interface: ' + stderr));
-                }
-            }
+        if (!isValidInterface(oldInterfaceName)) {
+            reject(new Error("Invalid old interface name: " + ipCidr));
+            return;
+        }
 
-            resolve();
-        });
+        if (!isValidInterface(newInterfaceName)) {
+            reject(new Error("Invalid new interface name: " + ipCidr));
+            return;
+        }
+        exec(
+            `ip link set dev ${oldInterfaceName} name ${newInterfaceName}`,
+            (error, stdout, stderr) => {
+                if (stderr) {
+                    if (stderr.includes("Cannot find device")) {
+                        reject(new Error("Cannot find device " + oldInterfaceName));
+                    } else {
+                        reject(new Error("Error renaming interface: " + stderr));
+                    }
+                }
+
+                resolve();
+            },
+        );
     });
 }
 
@@ -116,22 +140,28 @@ function rename(oldInterfaceName, newInterfaceName) {
  */
 function setMac(interfaceName, newMacAddress) {
     return new Promise((resolve, reject) => {
-        if(!isValidMACAddress(newMacAddress)) {
-            reject(new Error('Invalid Mac Address ' + newMacAddress))
+        if (!isValidInterface(interfaceName)) {
+            reject(new Error("Invalid interface name: " + ipCidr));
+            return;
         }
 
-
-        exec(`ip link set dev ${interfaceName} address ${newMacAddress}`, (error, stdout, stderr) => {
-            if (stderr) {
-                if (stderr.includes('Cannot find device')) {
-                    reject(new Error('Cannot find device ' + interfaceName));
-                } else {
-                    reject(new Error('Error setting MAC address: ' + stderr));
+        if (!isValidMACAddress(newMacAddress)) {
+            reject(new Error("Invalid Mac Address " + newMacAddress));
+        }
+        exec(
+            `ip link set dev ${interfaceName} address ${newMacAddress}`,
+            (error, stdout, stderr) => {
+                if (stderr) {
+                    if (stderr.includes("Cannot find device")) {
+                        reject(new Error("Cannot find device " + interfaceName));
+                    } else {
+                        reject(new Error("Error setting MAC address: " + stderr));
+                    }
                 }
-            }
 
-            resolve();
-        });
+                resolve();
+            },
+        );
     });
 }
 
@@ -140,5 +170,6 @@ module.exports = {
     setState,
     setMTU,
     rename,
-    setMac
-}
+    setMac,
+};
+
